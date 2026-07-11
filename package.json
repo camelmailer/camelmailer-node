@@ -1,0 +1,55 @@
+{
+  "name": "camelmailer",
+  "version": "0.1.0",
+  "description": "Node.js SDK for CamelMailer — transactional email for self-hosted and cloud instances",
+  "keywords": [
+    "camelmailer",
+    "email",
+    "transactional",
+    "smtp",
+    "self-hosted"
+  ],
+  "homepage": "https://camelmailer.com",
+  "bugs": {
+    "url": "https://github.com/camelmailer/camelmailer-node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camelmailer/camelmailer-node.git"
+  },
+  "license": "MIT",
+  "author": "CamelMailer contributors",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "eslint": "^9.17.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
