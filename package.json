@@ -1,5 +1,5 @@
 {
-  "name": "camelmailer",
+  "name": "@camelmailer/sdk",
   "version": "0.1.0",
   "description": "Node.js SDK for Camelmailer — transactional email for self-hosted and cloud instances",
   "keywords": [
@@ -52,5 +52,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

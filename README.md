@@ -1,7 +1,7 @@
 # Camelmailer Node.js SDK
 
 [![CI](https://github.com/camelmailer/camelmailer-node/actions/workflows/ci.yml/badge.svg)](https://github.com/camelmailer/camelmailer-node/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/camelmailer.svg)](https://www.npmjs.com/package/camelmailer)
+[![npm](https://img.shields.io/npm/v/%40camelmailer%2Fsdk.svg)](https://www.npmjs.com/package/@camelmailer/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Node.js SDK for [Camelmailer](https://camelmailer.com) — the open-source transactional email platform. Works with the Camelmailer cloud and any self-hosted instance.
@@ -13,7 +13,7 @@ Node.js SDK for [Camelmailer](https://camelmailer.com) — the open-source trans
 ## Install
 
 ```bash
-npm install camelmailer
+npm install @camelmailer/sdk
 ```
 
 ## Quickstart
@@ -21,7 +21,7 @@ npm install camelmailer
 Grab a server API key from your Camelmailer dashboard.
 
 ```ts
-import { CamelMailer } from 'camelmailer';
+import { CamelMailer } from '@camelmailer/sdk';
 
 const camelmailer = new CamelMailer('cm_xxxx');
 
