@@ -30,6 +30,6 @@ CAMELMAILER_API_KEY=cm_xxx CAMELMAILER_BASE_URL=https://mail.example.com npm tes
 - The API wire format is snake_case; the SDK exposes it 1:1 — no field renaming.
 - Zero runtime dependencies; keep it that way.
 - Every public method carries JSDoc.
-- Response/request types derive from the CamelMailer OpenAPI spec.
+- Response/request types derive from the Camelmailer OpenAPI spec.
 - Bump `src/version.ts` together with `package.json`, and keep
   `CHANGELOG.md` (Keep a Changelog) up to date.

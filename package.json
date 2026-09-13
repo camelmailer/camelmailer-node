@@ -1,7 +1,7 @@
 {
   "name": "camelmailer",
   "version": "0.1.0",
-  "description": "Node.js SDK for CamelMailer — transactional email for self-hosted and cloud instances",
+  "description": "Node.js SDK for Camelmailer — transactional email for self-hosted and cloud instances",
   "keywords": [
     "camelmailer",
     "email",
@@ -18,7 +18,7 @@
     "url": "git+https://github.com/camelmailer/camelmailer-node.git"
   },
   "license": "MIT",
-  "author": "CamelMailer contributors",
+  "author": "Camelmailer contributors",
   "sideEffects": false,
   "type": "module",
   "exports": {
