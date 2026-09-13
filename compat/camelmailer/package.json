@@ -1,0 +1,32 @@
+{
+  "name": "camelmailer",
+  "version": "0.1.1",
+  "description": "Moved to @camelmailer/sdk. This package re-exports it so existing code keeps working.",
+  "keywords": ["camelmailer", "email", "transactional", "deprecated"],
+  "homepage": "https://camelmailer.com",
+  "bugs": "https://github.com/camelmailer/camelmailer-node/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camelmailer/camelmailer-node.git"
+  },
+  "license": "MIT",
+  "author": "Camelmailer contributors",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    }
+  },
+  "main": "./index.cjs",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "files": ["index.mjs", "index.cjs", "index.d.ts", "README.md"],
+  "dependencies": {
+    "@camelmailer/sdk": ">=0.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
