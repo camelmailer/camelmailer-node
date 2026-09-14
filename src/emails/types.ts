@@ -141,3 +141,36 @@ export interface EmailRawResponse {
   /** The raw RFC 5322 source, base64-encoded. */
   raw_message: string;
 }
+
+/**
+ * Per-request options that travel as headers rather than in the body.
+ */
+export interface SendRequestOptions {
+  /**
+   * Makes the send idempotent: a retry with the same key replays the
+   * original result instead of queuing a second copy. Keys are scoped to
+   * the server and a completed result is kept for 24 hours. Reusing a key
+   * for different content is rejected rather than silently ignored.
+   */
+  idempotencyKey?: string;
+}
+
+/** Options for {@link Emails.sendToStream}. */
+export interface SendToStreamOptions {
+  /** Bare From address. */
+  from?: string;
+  subject?: string;
+  html_body?: string;
+  text_body?: string;
+  /** Permalink of a stored template to render for every recipient. */
+  template?: string;
+  template_model?: Record<string, unknown>;
+}
+
+/** Result of {@link Emails.sendToStream}. */
+export interface SendToStreamResponse {
+  /** Recipients turned into queued messages. */
+  queued: number;
+  /** Recipients past the per-request cap of 1000, not queued. */
+  skipped: number;
+}

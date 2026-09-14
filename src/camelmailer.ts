@@ -1,9 +1,14 @@
 import { Bounces } from './bounces/bounces';
+import { Campaigns } from './campaigns/campaigns';
 import { Dmarc } from './dmarc/dmarc';
 import { Emails } from './emails/emails';
 import { CamelMailerError } from './error';
+import { Inbound } from './inbound/inbound';
+import { Layouts } from './layouts/layouts';
+import { Logs } from './logs/logs';
 import { StatsResource } from './stats/stats';
 import { Streams } from './streams/streams';
+import { Subscribers } from './subscribers/subscribers';
 import { Templates } from './templates/templates';
 import type { CamelMailerResult, PingResponse } from './types';
 import { VERSION } from './version';
@@ -67,6 +72,16 @@ export class CamelMailer {
   readonly bounces = new Bounces(this);
   /** DMARC monitoring. */
   readonly dmarc = new Dmarc(this);
+  /** Broadcast campaigns. */
+  readonly campaigns = new Campaigns(this);
+  /** Opt-in subscribers of a broadcast stream. */
+  readonly subscribers = new Subscribers(this);
+  /** Template layouts. */
+  readonly layouts = new Layouts(this);
+  /** Inbound and held messages. */
+  readonly inbound = new Inbound(this);
+  /** The server's request log and tag index. */
+  readonly logs = new Logs(this);
 
   readonly baseUrl: string;
   private readonly key: string;
@@ -111,11 +126,29 @@ export class CamelMailer {
     return this.request<T>('PATCH', path, body);
   }
 
+  /** Perform a DELETE request against the API (see {@link CamelMailer.get}). */
+  delete<T>(path: string): Promise<CamelMailerResult<T>> {
+    return this.request<T>('DELETE', path);
+  }
+
+  /**
+   * POST with extra request headers. Used for `Idempotency-Key`; separate
+   * from {@link CamelMailer.post} so the common call stays two arguments.
+   */
+  postWithHeaders<T>(
+    path: string,
+    body: unknown,
+    headers: Record<string, string>,
+  ): Promise<CamelMailerResult<T>> {
+    return this.request<T>('POST', path, body, undefined, headers);
+  }
+
   private async request<T>(
     method: string,
     path: string,
     body?: unknown,
     query?: QueryParams,
+    extraHeaders?: Record<string, string>,
   ): Promise<CamelMailerResult<T>> {
     const url = new URL(this.baseUrl + path);
     for (const [name, value] of Object.entries(query ?? {})) {
@@ -125,6 +158,7 @@ export class CamelMailer {
     const headers: Record<string, string> = {
       'X-Server-API-Key': this.key,
       'User-Agent': this.userAgent,
+      ...extraHeaders,
     };
     const init: RequestInit = { method, headers };
     if (body !== undefined) {

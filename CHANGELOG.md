@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-09-14
+
+### Added
+
+- **Broadcast campaigns** (`campaigns`): list server-wide or per stream,
+  create, update, send, cancel, and read per-campaign statistics.
+  Scheduling is three-valued on purpose: omit `scheduled_at` to leave a
+  schedule alone, set a time to move a draft to `scheduled`, pass `null`
+  to clear it and drop back to `draft`.
+- **Subscribers** (`subscribers`): list, add, bulk `import`, `remove`, and
+  `complaint`, which writes a stream-scoped suppression and unsubscribes
+  in one idempotent call. Subscribers belong to one stream, not to a
+  global contact list.
+- **Layouts** (`layouts`): list, create, get, update, delete and
+  `uploadLogo`. The HTML wrapper must embed the body as `{{{ content }}}`.
+- **Inbound and held mail** (`inbound`): list with filters, get, `retry`
+  and `bypass`.
+- **Request log and tags** (`logs`): `list` with status-class and method
+  filters, and `tags` with usage counts.
+- **`emails.sendToStream`**: the same content to every subscriber of a
+  broadcast stream, reporting `queued` against `skipped`.
+- **Idempotent sending**: `emails.send` and `emails.sendBatch` take an
+  optional second argument with an `idempotencyKey`, sent as the
+  `Idempotency-Key` header. A retry replays the original result rather
+  than queuing a second copy.
+- `client.delete()` and `client.postWithHeaders()`, which the new
+  resources use and which stay available as escape hatches.
+
+### Changed
+
+- `CamelMailerErrorCode` knows `SendLimitExceeded` (HTTP 429, raised
+  before anything is stored) and `InvalidIdempotentRequest` (HTTP 409, a
+  key reused for different content).
+
+### Note
+
+These six surfaces were missing because they were never in the OpenAPI
+spec this SDK is written from, although the server has served them since
+v0.5. The spec now covers all 59 server routes and CI checks it.
+
 ## [Unreleased]
 
 ## [0.1.0] - 2026-07-11
