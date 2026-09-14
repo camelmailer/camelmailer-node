@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-09-14
+
+### Added
+
+- `sendWithTemplate()` and `sendWithTemplateBatch()` take an idempotency
+  key. The API claims all four send endpoints, so leaving it off these two
+  made a template send the one thing a retry could duplicate.
+
 ## [0.2.1] - 2026-09-14
 
 ### Fixed
@@ -89,7 +97,8 @@ v0.5. The spec now covers all 59 server routes and CI checks it.
   (stable `code`, `statusCode`), no throwing on request failures.
 - ESM + CJS dual build, zero runtime dependencies, Node.js >= 18.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-node/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-node/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.2.2
 [0.2.1]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.2.1
 [0.2.0]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.1.0

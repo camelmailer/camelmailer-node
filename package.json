@@ -1,6 +1,6 @@
 {
   "name": "@camelmailer/sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node.js SDK for Camelmailer — transactional email for self-hosted and cloud instances",
   "keywords": [
     "camelmailer",

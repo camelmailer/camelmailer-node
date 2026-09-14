@@ -106,20 +106,24 @@ export class Emails {
    */
   sendWithTemplate(
     options: SendEmailWithTemplateOptions,
+    request: SendRequestOptions = {},
   ): Promise<CamelMailerResult<SendEmailResponse>> {
-    return this.client.post<SendEmailResponse>(
+    return this.client.postWithHeaders<SendEmailResponse>(
       '/api/v2/server/messages/with_template',
       serializeSend(options),
+      idempotencyHeader(request),
     );
   }
 
   /** Send a stored template to many recipients in one request. */
   sendWithTemplateBatch(
     batch: SendEmailWithTemplateOptions[],
+    request: SendRequestOptions = {},
   ): Promise<CamelMailerResult<SendBatchResponse>> {
-    return this.client.post<SendBatchResponse>(
+    return this.client.postWithHeaders<SendBatchResponse>(
       '/api/v2/server/messages/with_template/batch',
       batch.map(serializeSend),
+      idempotencyHeader(request),
     );
   }
 
