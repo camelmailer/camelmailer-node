@@ -3,6 +3,7 @@ import type { CamelMailerResult } from '../types';
 import type {
   CampaignResponse,
   CreateCampaignOptions,
+  CreateDraftCampaignOptions,
   GetCampaignResponse,
   ListCampaignsResponse,
   UpdateCampaignOptions,
@@ -11,9 +12,10 @@ import type {
 /**
  * Broadcast campaigns (`/api/v2/server/campaigns`).
  *
- * A campaign is content plus an audience. Creating one leaves it as a
- * `draft`; scheduling and sending are separate calls, so nothing goes out
- * as a side effect of writing it.
+ * A campaign is content plus an audience. There are two ways to create one
+ * and they behave differently: {@link Campaigns.createDraft} writes it and
+ * waits, while {@link Campaigns.createAndSend} expands it to the stream's
+ * subscribers before the call returns.
  */
 export class Campaigns {
   constructor(private readonly client: CamelMailer) {}
@@ -42,8 +44,27 @@ export class Campaigns {
     );
   }
 
-  /** Create a campaign on a broadcast stream. It starts as a draft. */
-  create(
+  /**
+   * Create a campaign without sending it.
+   *
+   * Name the audience with `stream`. Leave `scheduled_at` out for a
+   * `draft`, set it for `scheduled`, or pass `send_now` to send on
+   * creation.
+   */
+  createDraft(
+    options: CreateDraftCampaignOptions,
+  ): Promise<CamelMailerResult<CampaignResponse>> {
+    return this.client.post<CampaignResponse>('/api/v2/server/campaigns', options);
+  }
+
+  /**
+   * Create a campaign on a broadcast stream and send it immediately.
+   *
+   * The send starts before this call returns, so there is no draft to
+   * review and no schedule to set. Use {@link Campaigns.createDraft} when
+   * the campaign should wait.
+   */
+  createAndSend(
     permalink: string,
     options: CreateCampaignOptions,
   ): Promise<CamelMailerResult<CampaignResponse>> {
@@ -51,6 +72,19 @@ export class Campaigns {
       `/api/v2/server/streams/${encodeURIComponent(permalink)}/campaigns`,
       options,
     );
+  }
+
+  /**
+   * @deprecated Renamed to {@link Campaigns.createAndSend}, which says what
+   * it does: this sends to the stream's subscribers straight away. It was
+   * documented as creating a draft in 0.2.0, which was wrong. For a draft,
+   * use {@link Campaigns.createDraft}.
+   */
+  create(
+    permalink: string,
+    options: CreateCampaignOptions,
+  ): Promise<CamelMailerResult<CampaignResponse>> {
+    return this.createAndSend(permalink, options);
   }
 
   /**

@@ -191,15 +191,27 @@ const { data } = await camelmailer.emails.sendToStream('product-news', {
 // skipped, so a larger audience wants a campaign.
 ```
 
-A campaign is content plus an audience, and it only leaves `draft`
-deliberately:
+A campaign is content plus an audience. There are two ways to create one
+and they behave differently, so pick deliberately: `createDraft` writes it
+and waits, `createAndSend` expands it to the stream's subscribers before
+the call returns.
 
 ```ts
-const { data } = await camelmailer.campaigns.create('product-news', {
+const { data } = await camelmailer.campaigns.createDraft({
+  stream: 'product-news',
   name: 'September newsletter',
   from: 'news@acme.com',
   subject: 'What shipped in September',
   html_body: '<p>Hello</p>',
+  // scheduled_at: '2026-10-01T08:00:00Z',  // arms it as `scheduled`
+});
+
+// Goes out on the spot, no draft and no schedule:
+await camelmailer.campaigns.createAndSend('product-news', {
+  name: 'Status update',
+  from: 'news@acme.com',
+  subject: 'We are back up',
+  text_body: 'All clear.',
 });
 
 await camelmailer.campaigns.update(data!.campaign.id, {
