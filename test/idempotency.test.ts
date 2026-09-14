@@ -32,6 +32,25 @@ describe('idempotent sending', () => {
     expect(requests[0]?.headers.get('Idempotency-Key')).toBe('nightly-2026-09-14');
   });
 
+  it('works for a template send, which the server also claims', async () => {
+    const { requests } = stubFetch({ body: envelope({ message_id: 1 }) });
+    await testClient().emails.sendWithTemplate(
+      { ...send, template: 'welcome', template_model: { name: 'Ada' } },
+      { idempotencyKey: 'welcome-ada' },
+    );
+    expect(requests[0]?.url.pathname).toBe('/api/v2/server/messages/with_template');
+    expect(requests[0]?.headers.get('Idempotency-Key')).toBe('welcome-ada');
+  });
+
+  it('works for a template batch', async () => {
+    const { requests } = stubFetch({ body: envelope({ messages: [] }) });
+    await testClient().emails.sendWithTemplateBatch([{ ...send, template: 'welcome' }], {
+      idempotencyKey: 'welcome-nightly',
+    });
+    expect(requests[0]?.url.pathname).toBe('/api/v2/server/messages/with_template/batch');
+    expect(requests[0]?.headers.get('Idempotency-Key')).toBe('welcome-nightly');
+  });
+
   it('still carries the API key and content type alongside it', async () => {
     const { requests } = stubFetch({ body: envelope({ message_id: 1 }) });
     await testClient().emails.send(send, { idempotencyKey: 'k' });

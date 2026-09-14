@@ -162,6 +162,9 @@ await camelmailer.emails.send(
 await camelmailer.emails.sendBatch(entries, { idempotencyKey: `nightly-${today}` });
 ```
 
+All four send methods take it: `send`, `sendBatch`, `sendWithTemplate` and
+`sendWithTemplateBatch`.
+
 A server can also carry a 30-day send allowance. When it runs out the API
 answers `SendLimitExceeded` with HTTP 429 **before** storing anything, so
 nothing was queued and the retry is yours to schedule.
