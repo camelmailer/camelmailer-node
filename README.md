@@ -146,6 +146,116 @@ await camelmailer.streams.archive('broadcasts');
 await camelmailer.emails.send({ from: 'a@acme.com', to: 'x@example.com', subject: 'News', stream: 'broadcasts' });
 ```
 
+## Retrying safely
+
+Pass an idempotency key and a retry replays the original result instead of
+queuing a second copy. Keys are scoped to the server, a completed result is
+kept for 24 hours, and reusing one for different content is refused with
+`InvalidIdempotentRequest` rather than silently ignored.
+
+```ts
+await camelmailer.emails.send(
+  { from: 'billing@acme.com', to: 'ada@example.com', subject: 'Your receipt' },
+  { idempotencyKey: `order-${order.id}` },
+);
+
+await camelmailer.emails.sendBatch(entries, { idempotencyKey: `nightly-${today}` });
+```
+
+A server can also carry a 30-day send allowance. When it runs out the API
+answers `SendLimitExceeded` with HTTP 429 **before** storing anything, so
+nothing was queued and the retry is yours to schedule.
+
+## Broadcast: subscribers and campaigns
+
+Subscribers belong to one stream rather than to a global list, and a
+broadcast to an address that is not subscribed is refused.
+
+```ts
+await camelmailer.subscribers.add('product-news', { address: 'ada@example.com' });
+await camelmailer.subscribers.import('product-news', ['ada@example.com', 'grace@example.com']);
+await camelmailer.subscribers.list('product-news');
+await camelmailer.subscribers.complaint('product-news', 'ada@example.com'); // suppress + unsubscribe
+await camelmailer.subscribers.remove('product-news', 'ada@example.com');
+```
+
+The same content to everyone at once, for small audiences:
+
+```ts
+const { data } = await camelmailer.emails.sendToStream('product-news', {
+  from: 'news@acme.com',
+  subject: 'What shipped in September',
+  html_body: '<p>Hello</p>',
+});
+// { queued, skipped } — recipients past the per-request cap of 1000 are
+// skipped, so a larger audience wants a campaign.
+```
+
+A campaign is content plus an audience, and it only leaves `draft`
+deliberately:
+
+```ts
+const { data } = await camelmailer.campaigns.create('product-news', {
+  name: 'September newsletter',
+  from: 'news@acme.com',
+  subject: 'What shipped in September',
+  html_body: '<p>Hello</p>',
+});
+
+await camelmailer.campaigns.update(data!.campaign.id, {
+  scheduled_at: '2026-10-01T08:00:00Z',   // draft -> scheduled
+});
+await camelmailer.campaigns.update(data!.campaign.id, {
+  scheduled_at: null,                      // scheduled -> draft
+});
+
+await camelmailer.campaigns.send(data!.campaign.id);
+await camelmailer.campaigns.cancel(data!.campaign.id);
+
+const { data: detail } = await camelmailer.campaigns.get(data!.campaign.id);
+detail?.stats; // delivered, failed, opened, clicked, unsubscribed
+```
+
+## Layouts
+
+A layout wraps every template that uses it, so header, footer and styling
+live in one place. The HTML wrapper has to embed the body raw as
+`{{{ content }}}`; escaped interpolation would show the message markup as
+text, and the API refuses it.
+
+```ts
+await camelmailer.layouts.create({
+  name: 'Default',
+  html_wrapper: '<html><body>{{{ content }}}</body></html>',
+});
+await camelmailer.layouts.uploadLogo('default', 'data:image/png;base64,iVBORw0KGgo=');
+await camelmailer.layouts.list();
+await camelmailer.layouts.delete('default');
+```
+
+## Inbound and held mail
+
+Covers mail arriving through an inbound route as well as outbound mail the
+spam filter put on hold, which is why a message here can be either retried
+or released past the hold.
+
+```ts
+await camelmailer.inbound.list({ stream: 'support-inbox', status: 'Held' });
+await camelmailer.inbound.get(55);
+await camelmailer.inbound.retry(55);   // back on the delivery queue
+await camelmailer.inbound.bypass(55);  // release past the hold
+```
+
+## Request log and tags
+
+Useful when a send did not arrive and the question is whether the request
+ever reached the API, and with what answer.
+
+```ts
+await camelmailer.logs.list({ status: '4xx', method: 'POST' });
+await camelmailer.logs.tags(); // [{ tag: 'receipt', count: 91 }, …]
+```
+
 ## Stats and bounces
 
 ```ts

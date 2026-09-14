@@ -27,6 +27,9 @@ export type {
   SendEmailResponse,
   SendEmailWithTemplateOptions,
   SendRecipientResult,
+  SendRequestOptions,
+  SendToStreamOptions,
+  SendToStreamResponse,
 } from './emails/types';
 
 export { Templates } from './templates/templates';
@@ -75,3 +78,55 @@ export type {
   ListDmarcReportsOptions,
   ListDmarcReportsResponse,
 } from './dmarc/types';
+
+export { Campaigns } from './campaigns/campaigns';
+export type {
+  Campaign,
+  CampaignResponse,
+  CampaignStats,
+  CampaignStatus,
+  CampaignStream,
+  CreateCampaignOptions,
+  GetCampaignResponse,
+  ListCampaignsResponse,
+  UpdateCampaignOptions,
+} from './campaigns/types';
+
+export { Subscribers } from './subscribers/subscribers';
+export type {
+  AddSubscriberOptions,
+  ImportSubscribersResponse,
+  ListSubscribersResponse,
+  RemoveSubscriberResponse,
+  Subscriber,
+  SubscriberResponse,
+  SubscriberStatus,
+} from './subscribers/types';
+
+export { Layouts } from './layouts/layouts';
+export type {
+  CreateLayoutOptions,
+  DeleteLayoutResponse,
+  Layout,
+  LayoutLogoResponse,
+  LayoutResponse,
+  ListLayoutsResponse,
+  UpdateLayoutOptions,
+} from './layouts/types';
+
+export { Inbound } from './inbound/inbound';
+export type {
+  GetInboundResponse,
+  InboundRequeueResponse,
+  ListInboundOptions,
+  ListInboundResponse,
+} from './inbound/types';
+
+export { Logs } from './logs/logs';
+export type {
+  ApiRequest,
+  ListLogsOptions,
+  ListLogsResponse,
+  ListTagsResponse,
+  TagCount,
+} from './logs/types';

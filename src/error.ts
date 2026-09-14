@@ -13,6 +13,13 @@ export type CamelMailerErrorCode =
   | 'InvalidCredentials'
   | 'RegistrationDisabled'
   | 'BillingDisabled'
+  // The server's 30-day send allowance is used up. Answered with HTTP 429
+  // before anything is stored, so nothing was queued and a retry after the
+  // window moves on will work.
+  | 'SendLimitExceeded'
+  // An Idempotency-Key was reused for a different request body, or sent
+  // twice on one request. Answered with HTTP 409.
+  | 'InvalidIdempotentRequest'
   | 'InternalServerError'
   | 'NetworkError'
   | 'InvalidResponseError'

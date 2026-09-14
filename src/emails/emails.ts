@@ -1,6 +1,9 @@
 import type { CamelMailer } from '../camelmailer';
 import type { CamelMailerResult, EmailAddress } from '../types';
 import type {
+  SendRequestOptions,
+  SendToStreamOptions,
+  SendToStreamResponse,
   EmailClicksResponse,
   EmailDeliveriesResponse,
   EmailOpensResponse,
@@ -13,6 +16,18 @@ import type {
   SendEmailResponse,
   SendEmailWithTemplateOptions,
 } from './types';
+
+/**
+ * Turn the request options into headers.
+ *
+ * An idempotency key makes a retry replay the original result instead of
+ * queuing a second copy. The server scopes keys per server and keeps a
+ * completed result for 24 hours; reusing a key with different content is
+ * rejected rather than silently ignored.
+ */
+function idempotencyHeader(request: SendRequestOptions): Record<string, string> {
+  return request.idempotencyKey ? { 'Idempotency-Key': request.idempotencyKey } : {};
+}
 
 /** Accept a single address or a list and always produce a list. */
 function toList(value: EmailAddress | EmailAddress[] | undefined): EmailAddress[] | undefined {
@@ -40,18 +55,47 @@ export class Emails {
    * The `from` domain must be a verified sending domain of the server, or
    * the exact `from` address a confirmed sender address.
    */
-  send(options: SendEmailOptions): Promise<CamelMailerResult<SendEmailResponse>> {
-    return this.client.post<SendEmailResponse>('/api/v2/server/messages', serializeSend(options));
+  send(
+    options: SendEmailOptions,
+    request: SendRequestOptions = {},
+  ): Promise<CamelMailerResult<SendEmailResponse>> {
+    return this.client.postWithHeaders<SendEmailResponse>(
+      '/api/v2/server/messages',
+      serializeSend(options),
+      idempotencyHeader(request),
+    );
+  }
+
+  /**
+   * Send the same content to every subscriber of a broadcast stream.
+   *
+   * Either give `subject` with a body, or a `template` permalink with an
+   * optional `template_model`. The response counts what was `queued` and
+   * what was `skipped`: recipients past the per-request cap of 1000 are
+   * skipped rather than queued, so a large audience wants a campaign.
+   */
+  sendToStream(
+    permalink: string,
+    options: SendToStreamOptions,
+  ): Promise<CamelMailerResult<SendToStreamResponse>> {
+    return this.client.post<SendToStreamResponse>(
+      `/api/v2/server/streams/${encodeURIComponent(permalink)}/send`,
+      options,
+    );
   }
 
   /**
    * Send a batch of emails in one request. The batch always resolves with
    * HTTP 200; inspect each entry's `status` for per-message success.
    */
-  sendBatch(batch: SendEmailOptions[]): Promise<CamelMailerResult<SendBatchResponse>> {
-    return this.client.post<SendBatchResponse>(
+  sendBatch(
+    batch: SendEmailOptions[],
+    request: SendRequestOptions = {},
+  ): Promise<CamelMailerResult<SendBatchResponse>> {
+    return this.client.postWithHeaders<SendBatchResponse>(
       '/api/v2/server/messages/batch',
       batch.map(serializeSend),
+      idempotencyHeader(request),
     );
   }
 
