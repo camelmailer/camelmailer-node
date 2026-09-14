@@ -49,7 +49,7 @@ export interface CampaignStats {
   unsubscribed: number;
 }
 
-/** Options for {@link Campaigns.create}. */
+/** Options for {@link Campaigns.createAndSend}. */
 export interface CreateCampaignOptions {
   name: string;
   /** Bare From address; the broadcast path authorizes its domain. */
@@ -57,6 +57,27 @@ export interface CreateCampaignOptions {
   subject?: string;
   html_body?: string;
   text_body?: string;
+}
+
+/**
+ * Options for {@link Campaigns.createDraft}.
+ *
+ * The initial status follows what you pass: `send_now` wins, then a
+ * `scheduled_at` (status `scheduled`), else a `draft`.
+ */
+export interface CreateDraftCampaignOptions {
+  /** Permalink of the broadcast stream to send to. */
+  stream: string;
+  /** Bare From address; the broadcast path authorizes its domain. */
+  from: string;
+  name?: string;
+  subject?: string;
+  html_body?: string;
+  text_body?: string;
+  /** RFC 3339 send time; arms the campaign as `scheduled`. */
+  scheduled_at?: string;
+  /** Send on creation, overriding `scheduled_at`. */
+  send_now?: boolean;
 }
 
 /**

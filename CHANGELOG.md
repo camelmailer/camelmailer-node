@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-09-14
+
+### Fixed
+
+- `campaigns.create()` was documented as creating a draft. It posts to
+  `POST /streams/{permalink}/campaigns`, which creates the campaign with
+  status `sending` and expands it to the stream's subscribers before the
+  call returns. Following the documentation would broadcast when you meant
+  to compose.
+
+### Added
+
+- `campaigns.createDraft()` for the route that actually plans a campaign
+  (`POST /campaigns`): it names the stream in the body and honours
+  `scheduled_at` and `send_now`.
+- `campaigns.createAndSend()`, the accurate name for the send-immediately
+  route.
+
+### Deprecated
+
+- `campaigns.create()`, in favour of `campaigns.createAndSend()`. It still
+  calls the same endpoint, so existing code keeps working.
+
 ## [0.2.0] - 2026-09-14
 
 ### Added
@@ -66,5 +89,7 @@ v0.5. The spec now covers all 59 server routes and CI checks it.
   (stable `code`, `statusCode`), no throwing on request failures.
 - ESM + CJS dual build, zero runtime dependencies, Node.js >= 18.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-node/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-node/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.2.1
+[0.2.0]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-node/releases/tag/v0.1.0

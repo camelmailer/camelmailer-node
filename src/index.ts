@@ -87,6 +87,7 @@ export type {
   CampaignStatus,
   CampaignStream,
   CreateCampaignOptions,
+  CreateDraftCampaignOptions,
   GetCampaignResponse,
   ListCampaignsResponse,
   UpdateCampaignOptions,

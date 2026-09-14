@@ -48,17 +48,60 @@ describe('campaigns.get', () => {
   });
 });
 
-describe('campaigns.create', () => {
-  it('POSTs to the stream and starts as a draft', async () => {
+describe('campaigns.createDraft', () => {
+  it('POSTs to the server route with the stream in the body', async () => {
     const { requests } = stubFetch({ status: 201, body: envelope({ campaign }) });
-    const { data } = await testClient().campaigns.create('product-news', {
+    const { data } = await testClient().campaigns.createDraft({
+      stream: 'product-news',
+      name: 'September newsletter',
+      from: 'news@acme.com',
+      subject: 'What shipped in September',
+    });
+    expect(requests[0]?.method).toBe('POST');
+    expect(requests[0]?.url.pathname).toBe('/api/v2/server/campaigns');
+    expect(requests[0]?.body).toMatchObject({ stream: 'product-news' });
+    expect(data?.campaign.status).toBe('draft');
+  });
+
+  it('arms a schedule', async () => {
+    const { requests } = stubFetch({
+      status: 201,
+      body: envelope({ campaign: { ...campaign, status: 'scheduled' } }),
+    });
+    const { data } = await testClient().campaigns.createDraft({
+      stream: 'product-news',
+      from: 'news@acme.com',
+      scheduled_at: '2026-10-01T08:00:00Z',
+    });
+    expect(requests[0]?.body).toMatchObject({ scheduled_at: '2026-10-01T08:00:00Z' });
+    expect(data?.campaign.status).toBe('scheduled');
+  });
+});
+
+describe('campaigns.createAndSend', () => {
+  it('POSTs to the stream route, which sends right away', async () => {
+    const { requests } = stubFetch({
+      status: 201,
+      body: envelope({ campaign: { ...campaign, status: 'sending' } }),
+    });
+    const { data } = await testClient().campaigns.createAndSend('product-news', {
       name: 'September newsletter',
       from: 'news@acme.com',
       subject: 'What shipped in September',
     });
     expect(requests[0]?.method).toBe('POST');
     expect(requests[0]?.url.pathname).toBe('/api/v2/server/streams/product-news/campaigns');
-    expect(data?.campaign.status).toBe('draft');
+    // The stream-scoped route expands to the subscribers before it answers.
+    expect(data?.campaign.status).toBe('sending');
+  });
+
+  it('is what the deprecated create() calls', async () => {
+    const { requests } = stubFetch({
+      status: 201,
+      body: envelope({ campaign: { ...campaign, status: 'sending' } }),
+    });
+    await testClient().campaigns.create('product-news', { name: 'September newsletter' });
+    expect(requests[0]?.url.pathname).toBe('/api/v2/server/streams/product-news/campaigns');
   });
 });
 
